@@ -1,7 +1,7 @@
 {
-  "name": "Delphi-D3 Demo",
+  "name": "delphi-demo",
   "version": "1.0.0",
-  "description": "",
+  "description": "Delphi+D3 demo",
   "main": "index.html",
   "scripts": {
     "start": "node app.js"
