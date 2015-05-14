@@ -1,6 +1,39 @@
 
 body {
-  font: 10px sans-serif;
+  background: #EDECE1;
+  font: normal 14px Calibri, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+h1, h2 {
+  text-align: center;
+}
+blockquote {
+  color: #333;
+  line-height: 1.5;
+}
+.container {
+  margin: auto;
+  width: 1024px;
+}
+
+#custom-zip {
+  display: block;
+  margin: auto;
+  width: 400px;
+}
+#custom-zip .target {
+  color: #666;
+  float: left;
+  font-size: 32px;
+  width: 375px;
+  margin: auto;
+  max-width: 100%;
+  padding: 10px;
+}
+#custom-zip input[type="submit"] {
+  font-size: 16px;
+  width: 100%;
+  padding: 5px;
 }
 
 .axis path,
@@ -11,16 +44,19 @@ body {
 }
 
 .bar-base {
-  fill: orange;
+  fill: #BA0D33;  
   fill-opacity: 0.5;
 }
 
-.bar-base:hover, .bar-compare:hover {
-  fill: orangered ;
+.bar-base:hover {
+  fill: #000 ;
 }
 .bar-compare {
-  fill: steelblue;
+  fill: #2E608C;
   fill-opacity: 0.5;
+}
+.bar-compare:hover {
+  fill: #AD2719 ;
 }
 
 .x.axis path {

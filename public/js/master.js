@@ -9,14 +9,15 @@ var DelphiDemo = DelphiDemo || (function() {
   var self = {};
 
   self.cache = {};
-  var graphAttr = {
+  var graph = {
     created: false,
     upperLimit: 0,
 
     datasets: []
   };
 
-  var deathDecoder = {
+  // 
+  var deathDecoder = { 
     "htd": "Heart Disease",
     "can": "Malignant Neoplasms (Cancer)", 
     "stk": "Cerebrovascular Disease (Stroke)",
@@ -32,6 +33,22 @@ var DelphiDemo = DelphiDemo || (function() {
     "unk": "Unknown"
   };
 
+  /**
+   * Default handlers for zip code form 
+   */
+  self.onBadInput = function(input) {
+    $('.message').html("No results for <strong>" + input + "</strong>");
+  }
+  self.onGoodInput = function(input) {
+    if(input) {
+      $('.current-zip').html("Viewing " + input);
+      $('.message').html('');
+    }
+  }
+
+  /** 
+   * Turn data into something more agreeable to D3 
+   */
   var transformData = function(data) {
     var points = [];
     // divisor for calculating percentages
@@ -45,19 +62,20 @@ var DelphiDemo = DelphiDemo || (function() {
 
     return points;
   };
-  self.render = function() {
 
-  };
-
+  /**
+   * Create graph for the first time
+   */
   var createGraph = function(data) {
+    if(graph.created) return;
+
     // divisor for calculating percentages
     var sum = data.reduce(function(acc, d) { return acc + d.value; }, 0) / 100;
 
     var margin = {top: 40, right: 50, bottom: 30, left: 80},
     width = $(window).width() - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    height = Math.max(300, Math.min($(window).height(), 500)) - margin.top - margin.bottom;
 
-    var formatPercent = d3.format("f");
 
     var x = d3.scale.ordinal()
         .rangeRoundBands([0, width], .1);
@@ -65,16 +83,17 @@ var DelphiDemo = DelphiDemo || (function() {
     var y = d3.scale.linear()
         .range([height, 0]);
 
-    var xAxis = d3.svg.axis()
+    graph.xAxis = d3.svg.axis()
         .scale(x)
         .orient("bottom");
 
-    var yAxis = d3.svg.axis()
+    var formatPercent = d3.format("f");
+    graph.yAxis = d3.svg.axis()
         .scale(y)
         .orient("left")
         .tickFormat(formatPercent);
 
-    graphAttr.tip = d3.tip()
+    graph.tip = d3.tip()
       .attr('class', 'd3-tip')
       .offset([-10, 0])
       .html(function(d) {
@@ -88,22 +107,22 @@ var DelphiDemo = DelphiDemo || (function() {
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    svg.call(graphAttr.tip);
+    svg.call(graph.tip);
 
-    graphAttr.upperLimit = Math.max(graphAttr.upperLimit, d3.max(data, function(d) { return d.value/sum }));
+    graph.upperLimit = Math.max(graph.upperLimit, d3.max(data, function(d) { return d.value/sum }) + 5);
 
     x.domain(data.map(function(d) { return d.name; }));
-    y.domain([0, graphAttr.upperLimit ]);
+    y.domain([0, graph.upperLimit ]);
     console.log(y);
 
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+        .call(graph.xAxis);
 
     svg.append("g")
         .attr("class", "y axis")
-        .call(yAxis)
+        .call(graph.yAxis)
       .append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 6)
@@ -111,76 +130,103 @@ var DelphiDemo = DelphiDemo || (function() {
         .style("text-anchor", "end")
         .text("Frequency In Population (%)");
 
-    graphAttr.x = x;
-    graphAttr.y = y;   
-    graphAttr.svg = svg;     
-    graphAttr.height = height;
-    graphAttr.width  = width;     
+    graph.x = x;
+    graph.y = y;   
+    graph.svg = svg;     
+    graph.height = height;
+    graph.width  = width;     
 
     addDataSet(data, "base");
-    graphAttr.created = true;
+    graph.created = true;
   };
 
+  /**
+   * Update the "compare" data set */
   var updateDataSet = function(data, id) {
-    if(!graphAttr.datasets.id) {
+    if(!graph.datasets.id) {
       return addDataSet(data, id);
     }
 
     var sum = data.reduce(function(acc, d) { return acc + d.value; }, 0) / 100;
-    graphAttr.upperLimit = Math.max(graphAttr.upperLimit, d3.max(data, function(d) { return d.value/sum }));    
+    graph.upperLimit = Math.max(graph.upperLimit, d3.max(data, function(d) { return d.value/sum }));    
 
-    graphAttr.y.domain([0, graphAttr.upperLimit]);
+    graph.y.domain([0, graph.upperLimit]);
 
-    graphAttr.svg.select('body').transition();
+    graph.svg.select('body').transition();
 
-    graphAttr.svg.select(".bar-" + id)
+    graph.svg.select(".bar-" + id)
         .data(data, function(d) {return d.name})
         .transition(750);        
   }
 
+  /** 
+   * Add a data set with the passed in id 
+   */
   var addDataSet = function(data, id) {
     console.log("Adding data");
     console.log(data);
     var sum = data.reduce(function(acc, d) { return acc + d.value; }, 0) / 100;
-    graphAttr.upperLimit = Math.max(graphAttr.upperLimit, d3.max(data, function(d) { return d.value/sum }));    
+    graph.upperLimit = Math.max(graph.upperLimit, d3.max(data, function(d) { return d.value/sum }));    
 
-    graphAttr.y.domain([0, graphAttr.upperLimit]);
+    graph.y.domain([0, graph.upperLimit]);
 
-    var bar = graphAttr.svg.selectAll(".bar-" + id)
+    var bar = graph.svg.selectAll(".bar-" + id)
         .data(data, function(d) {return d.name});
 
     bar.enter().append("rect")    
         .attr("class", "bar-" + id)
-        .attr("width", graphAttr.x.rangeBand())        
-        .on('mouseover', graphAttr.tip.show)
-        .on('mouseout', graphAttr.tip.hide)
+        .attr("width", graph.x.rangeBand())        
+        .on('mouseover', graph.tip.show)
+        .on('mouseout', graph.tip.hide)
 
     bar
-        .attr("x", function(d) { return graphAttr.x(d.name); })
-        .attr("y", function(d) { return graphAttr.y(d.value/sum); })
-        .attr("height", function(d) { return graphAttr.height - graphAttr.y(d.value/sum); });  
+        .attr("x", function(d) { return graph.x(d.name); })
+        .attr("y", function(d) { return graph.y(d.value/sum); })
+        .attr("height", function(d) { return graph.height - graph.y(d.value/sum); });  
   }
 
+    /** 
+     * Check that the result from the server is non-empty 
+     */
+    var verifyData = function(data, param) {
+      // If values are null, this means the server did not return any results
+      if(data && data.can !== null) {
+        self.onGoodInput(param);
+        return true;
+      }
 
+      self.onBadInput(param);      
+      return false;
+    }
+
+  /** 
+   * Send an ajax request to the server with the provided zip code.
+   * Update the graph with this data, if good.
+   */ 
   self.getCausesOfDeath = function(zip) {
     console.log("Getting data");
     $.get("/api/causes_of_death", zip && {zipcode: zip}, function(data) {
+        if(!verifyData(data, zip)) return;
+
         var points = transformData(data);
 
-        if(!graphAttr.created) {
+        if(!graph.created) {
           createGraph(points);
         } else {
           updateDataSet(points, "compare");
         }
+
         self.cache[zip || "all"] = points;
       }
     );
   };
 
+  /** 
+   * initialize 
+   */
   self.init = function() {
     self.getCausesOfDeath();
   };
-
 
   return self;
 })();
@@ -188,6 +234,7 @@ var DelphiDemo = DelphiDemo || (function() {
 $(document).ready(function() {
   DelphiDemo.init();
 
+  // Event handler for zip code input box
   $('#custom-zip').submit(function(evt) {
     var value = $(evt.target).find('.target').val();
     if(!isNaN(parseFloat(value)) && isFinite(value)) {

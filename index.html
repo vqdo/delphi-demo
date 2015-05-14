@@ -1,24 +1,36 @@
 <!DOCTYPE HTML>
 
-<html lang="en" ng-app="sgf">
+<html lang="en">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">        
-
         <base href="/">
-        <title>Delphi Demo</title>
+        <title>Delphi Demo: Leading Causes of Death in California (1999-2012)</title>
 
         <link rel="stylesheet" href="css/master.css" />
     </head>
     <body>
-        <h1>Delphi + D3 Demo</h1>
+        <div class="container">
+            <h1>Leading Causes of Death in California (1999-2012)</h1>
+            <p>Enter a zip code to view and compare the distribution in that area.</p>
 
+            <p>In general, if the top of a bar is blue, the corresponding cause of death is proportionately higher than the California average. If it is pink, it is lower than average.</p>
+
+            <blockquote>
+            1999-2012 deaths of California residents by ZIP code: Cause-of-death data for 1989 through 1998 were coded using the Ninth Revision of the International Classification of Diseases codes (ICD-9), while data for 1999 and onward were coded using the Tenth Revision (ICD-10). Deaths are tracked by residence, not occurrence, so a California resident who resided in a California ZIP code would be counted for that ZIP code, even if the death occurred somewhere else (including outside of California). Conversely, a visitor from outside California who died in the state would not be counted in this table.
+            </blockquote>            
+
+            <p><strong>Examples:</strong> 92122 (University City, SD), 94103 (SoMA, SF), 90220 (Compton),</p>   
+            <p>Hover over a bar to view the exact number.</p>
+            <form id="custom-zip">
+                <input type="text" placeholder="Enter a Zip Code" class="target" />
+                <input type="submit" value="View Data" />
+            </form>
+            <span class="message"></span>            
+        </div>
+
+
+        <h2 class="current-zip"></h2>
         <div class="chart"></div>
-
-        <form id="custom-zip">
-            <input type="text" placeholder="Enter a Zip Code" class="target" />
-            <input type="submit" value="Go" />
-        </form>
     
 
         <!-- JS dependencies -->
