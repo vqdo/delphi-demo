@@ -23,8 +23,11 @@ var server = app.listen(process.env.PORT || 3000, function () {
    * https://github.com/brianc/node-postgres
    */
   var pg = require('pg');
+  var dotenv = require('dotenv');
+  dotenv.load();
+
   // replace with real credentials
-  var conString = "postgres://USERNAME:PASSWORD@HOST/DB";
+  var conString = process.env.DATABASE_CONNECTION_URL;
 
   /** 
    * Returns JSON string with data from table 
